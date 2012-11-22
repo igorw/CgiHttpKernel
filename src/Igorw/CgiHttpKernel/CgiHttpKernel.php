@@ -35,9 +35,21 @@ class CgiHttpKernel implements HttpKernelInterface
         $process->wait();
 
         list($headerList, $body) = explode("\r\n\r\n", $process->getOutput());
-        $headers = $this->getHeaderMap(explode("\n", $headerList));
+        $headers = $this->getHeaderMap(explode("\r\n", $headerList));
 
-        return new Response($body, 200, $headers);
+        $status = $this->getStatusCode($headers);
+
+        return new Response($body, $status, $headers);
+    }
+
+    public function getStatusCode(array $headers)
+    {
+        if (isset($headers['Status'])) {
+            list($code) = explode(' ', $headers['Status']);
+            return (int) $code;
+        }
+
+        return 200;
     }
 
     public function getHeaderMap(array $headerList)
