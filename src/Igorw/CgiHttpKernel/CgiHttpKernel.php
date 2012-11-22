@@ -20,6 +20,10 @@ class CgiHttpKernel implements HttpKernelInterface
     {
         $filename = ltrim($request->getPathInfo(), '/');
 
+        if (!file_exists($this->rootDir.'/'.$filename)) {
+            return new Response('The requested file could not be found.', 404);
+        }
+
         $process = ProcessBuilder::create()
             ->add('php-cgi')
             ->add('-d expose_php=Off')
