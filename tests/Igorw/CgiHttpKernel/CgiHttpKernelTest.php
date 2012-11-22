@@ -15,5 +15,6 @@ class CgiHttpKernelTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame('Hello World', $response->getContent());
         $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('text/html', $response->headers->get('Content-type'));
     }
 }

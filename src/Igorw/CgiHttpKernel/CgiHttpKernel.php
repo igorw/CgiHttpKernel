@@ -22,6 +22,7 @@ class CgiHttpKernel implements HttpKernelInterface
 
         $process = ProcessBuilder::create()
             ->add('php-cgi')
+            ->add('-d expose_php=Off')
             ->add($filename)
             ->setWorkingDirectory($this->rootDir)
             ->getProcess();
