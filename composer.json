@@ -1,4 +1,7 @@
 {
+    "require": {
+        "symfony/http-kernel": "2.1.*"
+    },
     "autoload": {
         "psr-0": { "Igorw": "src" }
     }
