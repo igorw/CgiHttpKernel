@@ -42,4 +42,13 @@ class CgiHttpKernelTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(302, $response->getStatusCode());
         $this->assertSame('/foo.php', $response->headers->get('Location'));
     }
+
+    /** @test */
+    public function customErrorStatusCodeShouldBeSent()
+    {
+        $request = Request::create('/custom-error.php');
+        $response = $this->kernel->handle($request);
+
+        $this->assertSame(500, $response->getStatusCode());
+    }
 }
