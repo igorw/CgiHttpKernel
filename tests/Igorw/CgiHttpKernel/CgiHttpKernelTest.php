@@ -62,4 +62,15 @@ class CgiHttpKernelTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame('bar', $response->getContent());
     }
+
+    /** @test */
+    public function frontControllerShouldConvertRequestMethod()
+    {
+        $this->kernel = new CgiHttpKernel(__DIR__.'/Fixtures', 'silex.php');
+
+        $request = Request::create('/baz', 'POST');
+        $response = $this->kernel->handle($request);
+
+        $this->assertSame('qux', $response->getContent());
+    }
 }
