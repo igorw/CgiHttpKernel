@@ -4,6 +4,7 @@ namespace Igorw\CgiHttpKernel;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\Process\ProcessBuilder;
 
@@ -26,18 +27,22 @@ class CgiHttpKernel implements HttpKernelInterface
             return new Response('The requested file could not be found.', 404);
         }
 
+        $requestBody = $request->getContent() ?: $this->getRequestBodyFromParameterBag($request->request);
+
         $process = ProcessBuilder::create()
             ->add('php-cgi')
             ->add('-d expose_php=Off')
             ->add('-d cgi.force_redirect=Off')
             ->add($filename)
-            ->setInput($request->getContent())
+            ->setInput($requestBody)
             ->setEnv('SCRIPT_FILENAME', $filename)
             ->setEnv('SCRIPT_NAME', $this->rootDir.'/'.$filename)
             ->setEnv('PATH_INFO', $request->getPathInfo())
             ->setEnv('QUERY_STRING', $request->getQueryString())
             ->setEnv('REQUEST_URI', $request->getRequestUri())
             ->setEnv('REQUEST_METHOD', $request->getMethod())
+            ->setEnv('CONTENT_LENGTH', strlen($requestBody))
+            ->setEnv('CONTENT_TYPE', $request->headers->get('Content-Type'))
             ->setWorkingDirectory($this->rootDir)
             ->getProcess();
 
@@ -52,7 +57,7 @@ class CgiHttpKernel implements HttpKernelInterface
         return new Response($body, $status, $headers);
     }
 
-    public function getStatusCode(array $headers)
+    private function getStatusCode(array $headers)
     {
         if (isset($headers['Status'])) {
             list($code) = explode(' ', $headers['Status']);
@@ -62,7 +67,7 @@ class CgiHttpKernel implements HttpKernelInterface
         return 200;
     }
 
-    public function getHeaderMap(array $headerList)
+    private function getHeaderMap(array $headerList)
     {
         $headerMap = array();
         foreach ($headerList as $item) {
@@ -70,5 +75,10 @@ class CgiHttpKernel implements HttpKernelInterface
             $headerMap[$name] = $value;
         }
         return $headerMap;
+    }
+
+    private function getRequestBodyFromParameterBag(ParameterBag $bag)
+    {
+        return http_build_query($bag->all());
     }
 }

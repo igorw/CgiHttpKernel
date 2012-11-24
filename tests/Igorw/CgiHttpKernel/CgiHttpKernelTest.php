@@ -95,4 +95,13 @@ class CgiHttpKernelTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame('deleted', $response->getContent());
     }
+
+    /** @test */
+    public function itShouldForwardRequestBody()
+    {
+        $request = Request::create('/post-body.php', 'POST', array('foo' => 'bar'));
+        $response = $this->kernel->handle($request);
+
+        $this->assertSame('bar', $response->getContent());
+    }
 }
