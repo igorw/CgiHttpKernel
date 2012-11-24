@@ -115,4 +115,46 @@ class CgiHttpKernelTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame('bazinga', $response->getContent());
     }
+
+    /** @test */
+    public function itShouldForwardHostHeader()
+    {
+        $request = Request::create('http://localhost/host-header.php');
+        $response = $this->kernel->handle($request);
+
+        $this->assertSame('localhost', $response->getContent());
+    }
+
+    /** @test */
+    public function itShouldForwardCookies()
+    {
+        $request = Request::create('/cookie-get.php', 'GET', array(), array('foo' => 'bar'));
+        $response = $this->kernel->handle($request);
+
+        $this->assertSame('bar', $response->getContent());
+    }
+
+    /** @test */
+    public function isShouldSetReturnedCookiesOnResponse()
+    {
+        $request = Request::create('/cookie-set.php');
+        $response = $this->kernel->handle($request);
+
+        $cookies = $response->headers->getCookies();
+        $this->assertSame('foo', $cookies[0]->getName());
+        $this->assertSame('bar', $cookies[0]->getValue());
+    }
+
+    /** @test */
+    public function isShouldParseMultipleCookiesFromResponse()
+    {
+        $request = Request::create('/cookie-set-many.php');
+        $response = $this->kernel->handle($request);
+
+        $cookies = $response->headers->getCookies();
+        $this->assertSame('foo', $cookies[0]->getName());
+        $this->assertSame('baz', $cookies[0]->getValue());
+        $this->assertSame('qux', $cookies[1]->getName());
+        $this->assertSame('quux', $cookies[1]->getValue());
+    }
 }
