@@ -97,11 +97,22 @@ class CgiHttpKernelTest extends \PHPUnit_Framework_TestCase
     }
 
     /** @test */
-    public function itShouldForwardRequestBody()
+    public function itShouldForwardRequestParameters()
     {
-        $request = Request::create('/post-body.php', 'POST', array('foo' => 'bar'));
+        $request = Request::create('/post-params.php', 'POST', array('foo' => 'bar'));
         $response = $this->kernel->handle($request);
 
         $this->assertSame('bar', $response->getContent());
+    }
+
+    /** @test */
+    public function itShouldForwardRequestBody()
+    {
+        $content = 'bazinga';
+
+        $request = Request::create('/post-body.php', 'POST', array(), array(), array(), array(), $content);
+        $response = $this->kernel->handle($request);
+
+        $this->assertSame('bazinga', $response->getContent());
     }
 }
