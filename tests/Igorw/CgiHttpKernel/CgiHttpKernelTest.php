@@ -157,4 +157,13 @@ class CgiHttpKernelTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('qux', $cookies[1]->getName());
         $this->assertSame('quux', $cookies[1]->getValue());
     }
+
+    /** @test */
+    public function itShouldSetHttpAuth()
+    {
+        $request = Request::create('http://igorw:secret@localhost/auth.php');
+        $response = $this->kernel->handle($request);
+
+        $this->assertSame('igorw:secret', $response->getContent());
+    }
 }
