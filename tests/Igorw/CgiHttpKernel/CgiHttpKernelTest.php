@@ -73,4 +73,26 @@ class CgiHttpKernelTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame('qux', $response->getContent());
     }
+
+    /** @test */
+    public function frontControllerShouldSupportPut()
+    {
+        $this->kernel = new CgiHttpKernel(__DIR__.'/Fixtures', 'silex.php');
+
+        $request = Request::create('/put-target', 'PUT');
+        $response = $this->kernel->handle($request);
+
+        $this->assertSame('putted', $response->getContent());
+    }
+
+    /** @test */
+    public function frontControllerShouldSupportDelete()
+    {
+        $this->kernel = new CgiHttpKernel(__DIR__.'/Fixtures', 'silex.php');
+
+        $request = Request::create('/delete-target', 'DELETE');
+        $response = $this->kernel->handle($request);
+
+        $this->assertSame('deleted', $response->getContent());
+    }
 }

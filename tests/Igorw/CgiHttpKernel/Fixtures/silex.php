@@ -14,4 +14,12 @@ $app->post('/baz', function () {
     return 'qux';
 });
 
+$app->put('/put-target', function () {
+    return 'putted';
+});
+
+$app->delete('/delete-target', function () {
+    return 'deleted';
+});
+
 $app->run();
