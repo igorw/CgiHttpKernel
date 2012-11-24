@@ -10,15 +10,17 @@ use Symfony\Component\Process\ProcessBuilder;
 class CgiHttpKernel implements HttpKernelInterface
 {
     private $rootDir;
+    private $frontController;
 
-    public function __construct($rootDir)
+    public function __construct($rootDir, $frontController = null)
     {
         $this->rootDir = $rootDir;
+        $this->frontController = $frontController;
     }
 
     public function handle(Request $request, $type = HttpKernelInterface::MASTER_REQUEST, $catch = true)
     {
-        $filename = ltrim($request->getPathInfo(), '/');
+        $filename = $this->frontController ?: ltrim($request->getPathInfo(), '/');
 
         if (!file_exists($this->rootDir.'/'.$filename)) {
             return new Response('The requested file could not be found.', 404);
@@ -28,6 +30,10 @@ class CgiHttpKernel implements HttpKernelInterface
             ->add('php-cgi')
             ->add('-d expose_php=Off')
             ->add($filename)
+            ->setEnv('SCRIPT_NAME', $this->rootDir.'/'.$filename)
+            ->setEnv('PATH_INFO', $request->getPathInfo())
+            ->setEnv('QUERY_STRING', $request->getQueryString())
+            ->setEnv('REQUEST_URI', $request->getRequestUri())
             ->setWorkingDirectory($this->rootDir)
             ->getProcess();
 

@@ -51,4 +51,15 @@ class CgiHttpKernelTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame(500, $response->getStatusCode());
     }
+
+    /** @test */
+    public function frontControllerShouldLoadPathInfo()
+    {
+        $this->kernel = new CgiHttpKernel(__DIR__.'/Fixtures', 'silex.php');
+
+        $request = Request::create('/foo');
+        $response = $this->kernel->handle($request);
+
+        $this->assertSame('bar', $response->getContent());
+    }
 }
