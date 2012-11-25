@@ -106,30 +106,37 @@ class CgiHttpKernel implements HttpKernelInterface
 
     private function cookieFromResponseHeaderValue($value)
     {
-        preg_match_all('/(?P<names>[^=]+)=(?P<values>[^\;]*)(;\s)?/im', $value, $cookieParts);
+        $cookieParts = preg_split('/;\s?/', $value);
         $cookieMap = array();
-        foreach ($cookieParts['names'] as $key => $name) {
-            $cookieMap[$name] = $cookieParts['values'][$key];
+        foreach ($cookieParts as $part) {
+            preg_match('/(\w+)(?:=(.*)|)/', $part, $capture);
+            $name = $capture[1];
+            $value = isset($capture[2]) ? $capture[2] : '';
+
+            $cookieMap[$name] = $value;
         }
 
         $firstKey = key($cookieMap);
 
+        $cookieMap = array_merge($cookieMap, array(
+            'secure'    => isset($cookieMap['secure']),
+            'httponly'  => isset($cookieMap['httponly']),
+        ));
+
         $cookieMap = array_merge(array(
-            'expire' => 0,
+            'expires' => 0,
             'path' => '/',
             'domain' => null,
-            'secure' => false,
-            'httpOnly' => true,
         ), $cookieMap);
 
         return new Cookie(
             $firstKey,
             $cookieMap[$firstKey],
-            $cookieMap['expire'],
+            $cookieMap['expires'],
             $cookieMap['path'],
             $cookieMap['domain'],
             $cookieMap['secure'],
-            $cookieMap['httpOnly']
+            $cookieMap['httponly']
         );
     }
 

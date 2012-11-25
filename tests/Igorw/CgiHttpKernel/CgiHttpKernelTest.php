@@ -159,6 +159,31 @@ class CgiHttpKernelTest extends \PHPUnit_Framework_TestCase
     }
 
     /** @test */
+    public function isShouldParseEmptyCookieValue()
+    {
+        $request = Request::create('/cookie-set-empty.php');
+        $response = $this->kernel->handle($request);
+
+        $cookies = $response->headers->getCookies();
+        $this->assertSame('foo', $cookies[0]->getName());
+        $this->assertSame('', $cookies[0]->getValue());
+    }
+
+    /** @test */
+    public function isShouldParseFullCookieValue()
+    {
+        $request = Request::create('/cookie-set-full.php');
+        $response = $this->kernel->handle($request);
+
+        $cookies = $response->headers->getCookies();
+        $this->assertSame('foo', $cookies[0]->getName());
+        $this->assertSame('bar', $cookies[0]->getValue());
+        $this->assertSame(1353842823, $cookies[0]->getExpiresTime());
+        $this->assertSame('/baz', $cookies[0]->getPath());
+        $this->assertSame('example.com', $cookies[0]->getDomain());
+    }
+
+    /** @test */
     public function itShouldSetHttpAuth()
     {
         $request = Request::create('http://igorw:secret@localhost/auth.php');
