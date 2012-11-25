@@ -1,4 +1,13 @@
 {
+    "name": "igorw/cgi-http-kernel",
+    "description": "Adapter from HttpKernelInterface to CGI.",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Igor Wiedler",
+            "email": "igor@wiedler.ch"
+        }
+    ],
     "require": {
         "symfony/http-kernel": "2.1.*",
         "symfony/process": "2.1.*"
