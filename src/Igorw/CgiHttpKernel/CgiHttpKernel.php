@@ -106,7 +106,7 @@ class CgiHttpKernel implements HttpKernelInterface
 
     private function cookieFromResponseHeaderValue($value)
     {
-        preg_match_all('/(?P<names>[^=]+)=(?P<values>[^\;]+)(;\s)?/im', $value, $cookieParts);
+        preg_match_all('/(?P<names>[^=]+)=(?P<values>[^\;]*)(;\s)?/im', $value, $cookieParts);
         $cookieMap = array();
         foreach ($cookieParts['names'] as $key => $name) {
             $cookieMap[$name] = $cookieParts['values'][$key];
