@@ -2,6 +2,8 @@
 
 require __DIR__.'/../../../../vendor/autoload.php';
 
+use Symfony\Component\HttpFoundation\Request;
+
 $app = new Silex\Application();
 
 $app['exception_handler']->disable();
@@ -20,6 +22,10 @@ $app->put('/put-target', function () {
 
 $app->delete('/delete-target', function () {
     return 'deleted';
+});
+
+$app->get('/script-name', function (Request $request) {
+    return $request->server->get('SCRIPT_NAME');
 });
 
 $app->run();

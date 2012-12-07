@@ -191,4 +191,24 @@ class CgiHttpKernelTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame('igorw:secret', $response->getContent());
     }
+
+    /** @test */
+    public function scriptNameShouldBeFrontController()
+    {
+        $request = Request::create('/script-name.php');
+        $response = $this->kernel->handle($request);
+
+        $this->assertSame('/script-name.php', $response->getContent());
+    }
+
+    /** @test */
+    public function scriptNameShouldBeFrontControllerWithCustomFrontController()
+    {
+        $this->kernel = new CgiHttpKernel(__DIR__.'/Fixtures', 'silex.php');
+
+        $request = Request::create('/script-name');
+        $response = $this->kernel->handle($request);
+
+        $this->assertSame('/silex.php', $response->getContent());
+    }
 }
