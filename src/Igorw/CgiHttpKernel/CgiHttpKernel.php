@@ -6,6 +6,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Cookie;
+use Symfony\Component\HttpFoundation\FileBag;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\Process\ProcessBuilder;
 
@@ -28,12 +30,19 @@ class CgiHttpKernel implements HttpKernelInterface
             return new Response('The requested file could not be found.', 404);
         }
 
-        $requestBody = $request->getContent() ?: $this->getUrlEncodedParameterBag($request->request);
+        $requestBody = $this->getRequestBody($request);
+
+        if (count($request->files)) {
+            $boundary = $this->getMimeBoundary();
+            $request->headers->set('Content-Type', 'multipart/form-data; boundary='.$boundary);
+            $requestBody = $this->encodeMultipartFiles($boundary, $request->files);
+        }
 
         $builder = ProcessBuilder::create()
             ->add('php-cgi')
             ->add('-d expose_php=Off')
             ->add('-d cgi.force_redirect=Off')
+            ->add('-d html_errors=Off')
             ->add($filename)
             ->setInput($requestBody)
             ->setEnv('SCRIPT_NAME', '/'.$filename)
@@ -70,6 +79,11 @@ class CgiHttpKernel implements HttpKernelInterface
             $response->headers->setCookie($cookie);
         }
         return $response;
+    }
+
+    private function getRequestBody(Request $request)
+    {
+        return $request->getContent() ?: $this->getUrlEncodedParameterBag($request->request);
     }
 
     private function getStatusCode(array $headers)
@@ -143,5 +157,43 @@ class CgiHttpKernel implements HttpKernelInterface
     private function getUrlEncodedParameterBag(ParameterBag $bag)
     {
         return http_build_query($bag->all());
+    }
+
+    private function encodeMultipartFiles($boundary, FileBag $files)
+    {
+        $mimeBoundary = '--'.$boundary."\r\n";
+
+        $data = '';
+        foreach ($files->all() as $name => $file) {
+            $data .= $mimeBoundary;
+            $data .= $this->encodeMultipartFile($name, $file);
+            $data .= $mimeBoundary;
+        }
+        $data .= "\r\n";
+
+        return $data;
+    }
+
+    private function encodeMultipartFile($name, UploadedFile $file)
+    {
+        $eol = "\r\n";
+
+        $content = file_get_contents($file);
+
+        $data = '';
+        $data .= sprintf('Content-Disposition: form-data; name="%s"; filename="%s"'.$eol,
+                         $name,
+                         $file->getClientOriginalName());
+        $data .= sprintf('Content-Type: %s'.$eol,
+                         $file->getClientMimeType());
+        $data .= 'Content-Transfer-Encoding: base64'.$eol.$eol;
+        $data .= chunk_split(base64_encode($content)).$eol;
+
+        return $data;
+    }
+
+    private function getMimeBoundary()
+    {
+        return md5('cgi-http-kernel');
     }
 }

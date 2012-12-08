@@ -3,6 +3,7 @@
 namespace Igorw\CgiHttpKernel;
 
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class CgiHttpKernelTest extends \PHPUnit_Framework_TestCase
 {
@@ -210,5 +211,23 @@ class CgiHttpKernelTest extends \PHPUnit_Framework_TestCase
         $response = $this->kernel->handle($request);
 
         $this->assertSame('/silex.php', $response->getContent());
+    }
+
+    /** @test */
+    public function uploadShouldPutFileInFiles()
+    {
+        $file = new UploadedFile(__DIR__.'/Fixtures/sadkitten.gif', 'sadkitten.gif', 'image/gif');
+
+        $request = Request::create('/upload.php', 'POST');
+        $request->files->add(array('kitten' => $file));
+        $response = $this->kernel->handle($request);
+
+        $expected = implode("\n", array(
+            'sadkitten.gif',
+            'image/gif',
+            '1304444',
+            '1',
+        ));
+        $this->assertSame($expected."\n", $response->getContent());
     }
 }
