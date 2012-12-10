@@ -42,7 +42,6 @@ class CgiHttpKernel implements HttpKernelInterface
             ->add('php-cgi')
             ->add('-d expose_php=Off')
             ->add('-d cgi.force_redirect=Off')
-            ->add('-d html_errors=Off')
             ->add($filename)
             ->setInput($requestBody)
             ->setEnv('SCRIPT_NAME', '/'.$filename)
