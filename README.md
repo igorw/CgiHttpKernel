@@ -56,7 +56,7 @@ HttpKernelInterface, such as `Symfony\Component\HttpKernel\Client`.
     $kernel = new CgiHttpKernel(__DIR__.'/../phpBB');
     $client = new Client($kernel);
 
-    $crawler = $client->request('GET', 'index.php');
+    $crawler = $client->request('GET', '/index.php');
     $this->assertGreaterThan(0, $crawler->filter('.topiclist')->count());
 
 ## Is it really a lie?
