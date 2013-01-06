@@ -6,7 +6,7 @@
 >
     <testsuites>
         <testsuite name="CgiHttpKernel Test Suite">
-            <directory>./tests/Igorw/</directory>
+            <directory>./tests/</directory>
         </testsuite>
     </testsuites>
 
