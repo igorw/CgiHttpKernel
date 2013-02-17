@@ -52,6 +52,7 @@ class CgiHttpKernel implements HttpKernelInterface
             ->setEnv('REQUEST_METHOD', $request->getMethod())
             ->setEnv('CONTENT_LENGTH', strlen($requestBody))
             ->setEnv('CONTENT_TYPE', $request->headers->get('Content-Type'))
+            ->setEnv('SYMFONY_ATTRIBUTES', serialize($request->attributes->all()))
             ->setWorkingDirectory($this->rootDir);
 
         foreach ($request->headers->all() as $name => $values) {

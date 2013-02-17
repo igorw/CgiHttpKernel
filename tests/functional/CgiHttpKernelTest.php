@@ -229,4 +229,23 @@ class CgiHttpKernelTest extends \PHPUnit_Framework_TestCase
         ));
         $this->assertSame($expected."\n", $response->getContent());
     }
+
+    /** @test */
+    public function attributesShouldBeSerializedToEnv()
+    {
+        $attributes = array(
+            'foo'     => 'bar',
+            'baz.qux' => array(
+                'one'   => 'two',
+                'three' => 'four'
+            ),
+        );
+
+        $request = Request::create('/attributes.php');
+        $request->attributes->replace($attributes);
+        $response = $this->kernel->handle($request);
+
+        $expected = json_encode($attributes);
+        $this->assertSame($expected, $response->getContent());
+    }
 }

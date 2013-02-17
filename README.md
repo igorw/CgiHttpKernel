@@ -81,3 +81,13 @@ will hopefully enable you to refactor your legacy code with some confidence of
 not breaking stuff.
 
 Good luck.
+
+## Specifics
+
+### Attributes
+
+Request attributes are serialized and provided to the target script through
+the `SYMFONY_ATTRIBUTES` env variable. This means that it can get the original
+attributes as follows:
+
+    $attributes = unserialize($_SERVER['SYMFONY_ATTRIBUTES']);
