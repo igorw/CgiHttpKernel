@@ -67,7 +67,7 @@ class CgiHttpKernel implements HttpKernelInterface
         $process->start();
         $process->wait();
 
-        list($headerList, $body) = explode("\r\n\r\n", $process->getOutput());
+        list($headerList, $body) = explode("\r\n\r\n", $process->getOutput(), 2);
         $headers = $this->getHeaderMap(explode("\r\n", $headerList));
         unset($headers['Cookie']);
 

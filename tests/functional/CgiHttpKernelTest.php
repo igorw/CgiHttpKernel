@@ -248,4 +248,14 @@ class CgiHttpKernelTest extends \PHPUnit_Framework_TestCase
         $expected = json_encode($attributes);
         $this->assertSame($expected, $response->getContent());
     }
+
+    /** @test */
+    public function doubleCrlfResponseBodyShouldBeDecodedProperly()
+    {
+        $request = Request::create('/double-crlf-response-body.php');
+        $response = $this->kernel->handle($request);
+
+        $expected = "foo\r\n\r\nbar";
+        $this->assertSame($expected, $response->getContent());
+    }
 }
