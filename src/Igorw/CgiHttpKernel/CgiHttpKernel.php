@@ -15,11 +15,13 @@ class CgiHttpKernel implements HttpKernelInterface
 {
     private $rootDir;
     private $frontController;
+    private $phpCgiBin;
 
-    public function __construct($rootDir, $frontController = null)
+    public function __construct($rootDir, $frontController = null, $phpCgiBin = 'php-cgi')
     {
         $this->rootDir = $rootDir;
         $this->frontController = $frontController;
+        $this->phpCgiBin = $phpCgiBin;
     }
 
     public function handle(Request $request, $type = HttpKernelInterface::MASTER_REQUEST, $catch = true)
@@ -39,7 +41,7 @@ class CgiHttpKernel implements HttpKernelInterface
         }
 
         $builder = ProcessBuilder::create()
-            ->add('php-cgi')
+            ->add($this->phpCgiBin)
             ->add('-d expose_php=Off')
             ->add('-d cgi.force_redirect=Off')
             ->add($filename)

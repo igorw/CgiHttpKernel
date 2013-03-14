@@ -6,11 +6,13 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class CgiHttpKernelTest extends \PHPUnit_Framework_TestCase
 {
+    private $phpCgiBin;
     private $kernel;
 
     public function __construct()
     {
-        $this->kernel = new CgiHttpKernel(__DIR__.'/Fixtures');
+        $this->phpCgiBin = getenv('CGI_HTTP_KERNEL_BIN');
+        $this->kernel = new CgiHttpKernel(__DIR__.'/Fixtures', null, $this->phpCgiBin);
     }
 
     /** @test */
@@ -55,7 +57,7 @@ class CgiHttpKernelTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function frontControllerShouldLoadPathInfo()
     {
-        $this->kernel = new CgiHttpKernel(__DIR__.'/Fixtures', 'silex.php');
+        $this->kernel = new CgiHttpKernel(__DIR__.'/Fixtures', 'silex.php', $this->phpCgiBin);
 
         $request = Request::create('/foo');
         $response = $this->kernel->handle($request);
@@ -66,7 +68,7 @@ class CgiHttpKernelTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function frontControllerShouldConvertRequestMethod()
     {
-        $this->kernel = new CgiHttpKernel(__DIR__.'/Fixtures', 'silex.php');
+        $this->kernel = new CgiHttpKernel(__DIR__.'/Fixtures', 'silex.php', $this->phpCgiBin);
 
         $request = Request::create('/baz', 'POST');
         $response = $this->kernel->handle($request);
@@ -77,7 +79,7 @@ class CgiHttpKernelTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function frontControllerShouldSupportPut()
     {
-        $this->kernel = new CgiHttpKernel(__DIR__.'/Fixtures', 'silex.php');
+        $this->kernel = new CgiHttpKernel(__DIR__.'/Fixtures', 'silex.php', $this->phpCgiBin);
 
         $request = Request::create('/put-target', 'PUT');
         $response = $this->kernel->handle($request);
@@ -88,7 +90,7 @@ class CgiHttpKernelTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function frontControllerShouldSupportDelete()
     {
-        $this->kernel = new CgiHttpKernel(__DIR__.'/Fixtures', 'silex.php');
+        $this->kernel = new CgiHttpKernel(__DIR__.'/Fixtures', 'silex.php', $this->phpCgiBin);
 
         $request = Request::create('/delete-target', 'DELETE');
         $response = $this->kernel->handle($request);
@@ -204,7 +206,7 @@ class CgiHttpKernelTest extends \PHPUnit_Framework_TestCase
     /** @test */
     public function scriptNameShouldBeFrontControllerWithCustomFrontController()
     {
-        $this->kernel = new CgiHttpKernel(__DIR__.'/Fixtures', 'silex.php');
+        $this->kernel = new CgiHttpKernel(__DIR__.'/Fixtures', 'silex.php', $this->phpCgiBin);
 
         $request = Request::create('/script-name');
         $response = $this->kernel->handle($request);

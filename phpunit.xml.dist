@@ -4,6 +4,10 @@
          colors="true"
          bootstrap="vendor/autoload.php"
 >
+    <php>
+        <env name="CGI_HTTP_KERNEL_BIN" value="php-cgi"/>
+    </php>
+
     <testsuites>
         <testsuite name="CgiHttpKernel Test Suite">
             <directory>./tests/</directory>
