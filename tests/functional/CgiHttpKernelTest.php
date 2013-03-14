@@ -260,4 +260,14 @@ class CgiHttpKernelTest extends \PHPUnit_Framework_TestCase
         $expected = "foo\r\n\r\nbar";
         $this->assertSame($expected, $response->getContent());
     }
+
+    /** @test */
+    public function emptyResponseShouldWorkFine()
+    {
+        $request = Request::create('/empty.php');
+        $response = $this->kernel->handle($request);
+
+        $expected = '';
+        $this->assertSame($expected, $response->getContent());
+    }
 }
