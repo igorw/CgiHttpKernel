@@ -17,11 +17,11 @@ class CgiHttpKernel implements HttpKernelInterface
     private $frontController;
     private $phpCgiBin;
 
-    public function __construct($rootDir, $frontController = null, $phpCgiBin = 'php-cgi')
+    public function __construct($rootDir, $frontController = null, $phpCgiBin = null)
     {
         $this->rootDir = $rootDir;
         $this->frontController = $frontController;
-        $this->phpCgiBin = $phpCgiBin;
+        $this->phpCgiBin = $phpCgiBin ?: 'php-cgi';
     }
 
     public function handle(Request $request, $type = HttpKernelInterface::MASTER_REQUEST, $catch = true)
@@ -109,7 +109,7 @@ class CgiHttpKernel implements HttpKernelInterface
 
         $headerMap = array();
 
-        $headerList  = preg_replace('~\xD\xA[\t ]~', ' ', $headerListRaw);
+        $headerList  = preg_replace('~\r\n[\t ]~', ' ', $headerListRaw);
         $headerLines = explode("\r\n", $headerList);
         foreach ($headerLines as $headerLine) {
             if (false === strpos($headerLine, ':')) {
