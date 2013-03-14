@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\FileBag;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\Process\ProcessBuilder;
+use \RuntimeException;
 
 class CgiHttpKernel implements HttpKernelInterface
 {
@@ -69,11 +70,13 @@ class CgiHttpKernel implements HttpKernelInterface
         $process->start();
         $process->wait();
 
-        list($headerList, $body) = explode("\r\n\r\n", $process->getOutput(), 2);
-        $headers = $this->getHeaderMap(explode("\r\n", $headerList));
+        $processOutput = $process->getOutput();
+
+        list($headerList, $body) = explode("\r\n\r\n", $processOutput, 2) + array(1 => '');
+        $headers = $this->getHeaderMap($headerList);
         unset($headers['Cookie']);
 
-        $cookies = $this->getCookies(explode("\r\n", $headerList));
+        $cookies = $this->getCookies($headers);
         $status = $this->getStatusCode($headers);
 
         $response = new Response($body, $status, $headers);
@@ -98,26 +101,46 @@ class CgiHttpKernel implements HttpKernelInterface
         return 200;
     }
 
-    private function getHeaderMap(array $headerList)
+    private function getHeaderMap($headerListRaw)
     {
-        $headerMap = array();
-        foreach ($headerList as $item) {
-            list($name, $value) = explode(': ', $item);
-            $headerMap[$name] = $value;
+        $headerMap   = array();
+        if (!strlen($headerListRaw)) {
+            return $headerMap;
+        }
+        $headerList  = preg_replace('~\xD\xA[\t ]~', ' ', $headerListRaw);
+        $headerLines = explode("\r\n", $headerList);
+        foreach ($headerLines as $headerLine) {
+            list($name, $value) = explode(':', $headerLine, 2) + array(1 => NULL);
+            if (NULL === $value) {
+                throw new RuntimeException('Unable to parse header line, name missing');
+            }
+            $name             = implode('-', array_map('ucwords', explode('-', $name)));
+            $value            = trim($value, "\t ");
+            switch($name) {
+                case 'Set-Cookie':
+                    $headerMap[$name][] = $value;
+                    break;
+
+                default:
+                    if (isset($headerMap[$name])) {
+                        $value = $headerMap[$name] . ',' . $value;
+                    }
+                    $headerMap[$name] = $value;
+            }
         }
         return $headerMap;
     }
 
     private function getCookies(array $headerList)
     {
-        $cookies = array();
-        foreach ($headerList as $item) {
-            list($name, $value) = explode(': ', $item);
-            if ('set-cookie' === strtolower($name)) {
-                $cookies[] = $this->cookieFromResponseHeaderValue($value);
-            }
+        if (!isset($headerList['Set-Cookie'])) {
+            return array();
         }
-        return $cookies;
+
+        return array_map(
+            array($this, 'cookieFromResponseHeaderValue'),
+            $headerList['Set-Cookie']
+        );
     }
 
     private function cookieFromResponseHeaderValue($value)
