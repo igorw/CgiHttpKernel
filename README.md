@@ -74,6 +74,10 @@ FastCGI is good for production but not really practical for testing since it
 needs to run in a separate process, listen on a port, requires configuration,
 etc.
 
+However, there is an [FcgiHttpKernel](https://github.com/igorw/FcgiHttpKernel)
+that ports the idea of this project to FastCGI. It may in fact become useful
+for tests.
+
 ## When to use CgiHttpKernel?
 
 It is mainly intended to write functional tests for legacy applications. That
