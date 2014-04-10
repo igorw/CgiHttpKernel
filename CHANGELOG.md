@@ -1,5 +1,6 @@
-### 1.0.1 (2013-03-xx)
+### 1.0.2 (2014-04-10)
 
+  * Bugfix: Support for multipart requests (@ftassi)
   * Bugfix: Better handling of CGI response edge cases (@hakre)
 
 ### 1.0.1 (2013-03-14)
