@@ -37,7 +37,8 @@ class CgiHttpKernel implements HttpKernelInterface
         if (count($request->files)) {
             $boundary = $this->getMimeBoundary();
             $request->headers->set('Content-Type', 'multipart/form-data; boundary='.$boundary);
-            $requestBody = $this->encodeMultipartFiles($boundary, $request->files);
+            $requestBody = $this->buildMultipartParameters($boundary, $request->request);
+            $requestBody .= $this->encodeMultipartFiles($boundary, $request->files);
         }
 
         $builder = ProcessBuilder::create()
@@ -189,6 +190,21 @@ class CgiHttpKernel implements HttpKernelInterface
         return http_build_query($bag->all());
     }
 
+    private function buildMultipartParameters($boundary, ParameterBag $parameters)
+    {
+        $mimeBoundary = '--'.$boundary."\r\n";
+
+        $data = '';
+        foreach ($parameters->all() as $name => $parameter) {
+            $data .= $mimeBoundary;
+            $data .= $this->buildMultipartParameter($name, $parameter);
+            $data .= $mimeBoundary;
+        }
+        $data .= "\r\n";
+
+        return $data;
+    }
+
     private function encodeMultipartFiles($boundary, FileBag $files)
     {
         $mimeBoundary = '--'.$boundary."\r\n";
@@ -218,6 +234,17 @@ class CgiHttpKernel implements HttpKernelInterface
                          $file->getClientMimeType());
         $data .= 'Content-Transfer-Encoding: base64'.$eol.$eol;
         $data .= chunk_split(base64_encode($content)).$eol;
+
+        return $data;
+    }
+
+    private function buildMultipartParameter($fieldName, $fieldValue)
+    {
+        $eol = "\r\n";
+
+        $data = '';
+        $data .= sprintf('Content-Disposition: form-data; name="%s"',$fieldName);
+        $data .= $eol . $eol . $fieldValue . $eol;
 
         return $data;
     }

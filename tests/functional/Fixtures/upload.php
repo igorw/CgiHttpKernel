@@ -1,5 +1,6 @@
 <?php
 
+echo $_POST['foo']."\n";
 echo $_FILES['kitten']['name']."\n";
 echo $_FILES['kitten']['type']."\n";
 echo $_FILES['kitten']['size']."\n";

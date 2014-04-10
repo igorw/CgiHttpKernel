@@ -219,11 +219,12 @@ class CgiHttpKernelTest extends \PHPUnit_Framework_TestCase
     {
         $file = new UploadedFile(__DIR__.'/Fixtures/sadkitten.gif', 'sadkitten.gif', 'image/gif');
 
-        $request = Request::create('/upload.php', 'POST');
+        $request = Request::create('/upload.php', 'POST', array('foo' => 'bar'));
         $request->files->add(array('kitten' => $file));
         $response = $this->kernel->handle($request);
 
         $expected = implode("\n", array(
+            'bar',
             'sadkitten.gif',
             'image/gif',
             '1304444',
