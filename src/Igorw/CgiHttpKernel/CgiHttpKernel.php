@@ -16,12 +16,14 @@ class CgiHttpKernel implements HttpKernelInterface
     private $rootDir;
     private $frontController;
     private $phpCgiBin;
+    private $env;
 
-    public function __construct($rootDir, $frontController = null, $phpCgiBin = null)
+    public function __construct($rootDir, $frontController = null, $phpCgiBin = null, array $env = array())
     {
         $this->rootDir = $rootDir;
         $this->frontController = $frontController;
         $this->phpCgiBin = $phpCgiBin ?: 'php-cgi';
+        $this->env = $env;
     }
 
     public function handle(Request $request, $type = HttpKernelInterface::MASTER_REQUEST, $catch = true)
@@ -57,6 +59,10 @@ class CgiHttpKernel implements HttpKernelInterface
             ->setEnv('CONTENT_TYPE', $request->headers->get('Content-Type'))
             ->setEnv('SYMFONY_ATTRIBUTES', serialize($request->attributes->all()))
             ->setWorkingDirectory($this->rootDir);
+
+        foreach ($this->env as $name => $value) {
+            $builder->setEnv($name, $value);
+        }
 
         foreach ($request->headers->all() as $name => $values) {
             $name = 'HTTP_'.strtoupper(str_replace('-', '_', $name));
