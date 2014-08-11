@@ -47,6 +47,18 @@ class CgiHttpKernel implements HttpKernelInterface
             ->add('-d cgi.force_redirect=Off')
             ->add($filename)
             ->setInput($requestBody)
+            ->setWorkingDirectory($this->rootDir);
+
+        foreach ($request->server->all() as $name => $value) {
+            $builder->setEnv($name, $value);
+        }
+
+        foreach ($request->headers->all() as $name => $values) {
+            $name = 'HTTP_'.strtoupper(str_replace('-', '_', $name));
+            $builder->setEnv($name, array_shift($values));
+        }
+
+        $builder
             ->setEnv('SCRIPT_NAME', '/'.$filename)
             ->setEnv('SCRIPT_FILENAME', $this->rootDir.'/'.$filename)
             ->setEnv('PATH_INFO', $request->getPathInfo())
@@ -55,13 +67,7 @@ class CgiHttpKernel implements HttpKernelInterface
             ->setEnv('REQUEST_METHOD', $request->getMethod())
             ->setEnv('CONTENT_LENGTH', strlen($requestBody))
             ->setEnv('CONTENT_TYPE', $request->headers->get('Content-Type'))
-            ->setEnv('SYMFONY_ATTRIBUTES', serialize($request->attributes->all()))
-            ->setWorkingDirectory($this->rootDir);
-
-        foreach ($request->headers->all() as $name => $values) {
-            $name = 'HTTP_'.strtoupper(str_replace('-', '_', $name));
-            $builder->setEnv($name, array_shift($values));
-        }
+            ->setEnv('SYMFONY_ATTRIBUTES', serialize($request->attributes->all()));
 
         $cookie = $this->getUrlEncodedParameterBag($request->cookies);
         $builder->setEnv('HTTP_COOKIE', $cookie);

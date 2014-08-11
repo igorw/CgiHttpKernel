@@ -1,3 +1,7 @@
+### 1.0.3 (2014-08-11)
+
+  * Feature: Pass all of `$request->server` as env vars (@mmenozzi)
+
 ### 1.0.2 (2014-04-10)
 
   * Bugfix: Support for multipart requests (@ftassi)

@@ -271,4 +271,15 @@ class CgiHttpKernelTest extends \PHPUnit_Framework_TestCase
         $expected = '';
         $this->assertSame($expected, $response->getContent());
     }
+
+    /** @test */
+    public function customEnvVarShouldBeSet()
+    {
+        $request = Request::create('/env.php');
+        $request->server->set('FOO', 'bar');
+        $response = $this->kernel->handle($request);
+
+        $expected = 'bar';
+        $this->assertSame($expected, $response->getContent());
+    }
 }
