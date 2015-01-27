@@ -217,9 +217,11 @@ class CgiHttpKernel implements HttpKernelInterface
 
         $data = '';
         foreach ($files->all() as $name => $file) {
-            $data .= $mimeBoundary;
-            $data .= $this->encodeMultipartFile($name, $file);
-            $data .= $mimeBoundary;
+            if ($file) {
+                $data .= $mimeBoundary;
+                $data .= $this->encodeMultipartFile($name, $file);
+                $data .= $mimeBoundary;
+            }
         }
         $data .= "\r\n";
 

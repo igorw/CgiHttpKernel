@@ -13,7 +13,8 @@
         "symfony/process": "~2.1"
     },
     "require-dev": {
-        "silex/silex": "1.0.*@dev"
+        "silex/silex": "1.0.*@dev",
+        "symfony/browser-kit": "2.2.*"
     },
     "autoload": {
         "psr-0": { "Igorw": "src" }

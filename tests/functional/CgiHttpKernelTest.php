@@ -1,6 +1,8 @@
 <?php
 
 use Igorw\CgiHttpKernel\CgiHttpKernel;
+use Symfony\Component\DomCrawler\Form;
+use Symfony\Component\HttpKernel\Client;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -231,6 +233,25 @@ class CgiHttpKernelTest extends \PHPUnit_Framework_TestCase
             '1',
         ));
         $this->assertSame($expected."\n", $response->getContent());
+    }
+
+    /** @test */
+    public function submitShouldUploadOnlySelectedFiles()
+    {
+        $file = new UploadedFile(__DIR__.'/Fixtures/sadkitten.gif', 'sadkitten.gif', 'image/gif');
+        $client = new Client($this->kernel);
+        $crawler = $client->request('GET', '/upload-form.php');
+
+        $form = $crawler ->selectButton('Submit')->form();
+        $crawler = $client->submit($form, array(
+            'file1' => $file,
+            'file2' => null
+        ));
+
+        $expected = implode("\n", array(
+            'sadkitten.gif',
+        ));
+        $this->assertSame($expected."\n", $client->getResponse()->getContent());
     }
 
     /** @test */
