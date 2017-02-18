@@ -16,12 +16,14 @@ class CgiHttpKernel implements HttpKernelInterface
     private $rootDir;
     private $frontController;
     private $phpCgiBin;
+    private $timeout;
 
-    public function __construct($rootDir, $frontController = null, $phpCgiBin = null)
+    public function __construct($rootDir, $frontController = null, $phpCgiBin = null, $timeout = 60)
     {
         $this->rootDir = $rootDir;
         $this->frontController = $frontController;
         $this->phpCgiBin = $phpCgiBin ?: 'php-cgi';
+        $this->timeout = $timeout;
     }
 
     public function handle(Request $request, $type = HttpKernelInterface::MASTER_REQUEST, $catch = true)
@@ -47,7 +49,8 @@ class CgiHttpKernel implements HttpKernelInterface
             ->add('-d cgi.force_redirect=Off')
             ->add($filename)
             ->setInput($requestBody)
-            ->setWorkingDirectory($this->rootDir);
+            ->setWorkingDirectory($this->rootDir)
+            ->setTimeout($this->timeout);
 
         foreach ($request->server->all() as $name => $value) {
             $builder->setEnv($name, $value);
