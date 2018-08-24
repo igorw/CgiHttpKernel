@@ -55,50 +55,6 @@ class CgiHttpKernelTest extends \PHPUnit_Framework_TestCase
     }
 
     /** @test */
-    public function frontControllerShouldLoadPathInfo()
-    {
-        $this->kernel = new CgiHttpKernel(__DIR__.'/Fixtures', 'silex.php', $this->phpCgiBin);
-
-        $request = Request::create('/foo');
-        $response = $this->kernel->handle($request);
-
-        $this->assertSame('bar', $response->getContent());
-    }
-
-    /** @test */
-    public function frontControllerShouldConvertRequestMethod()
-    {
-        $this->kernel = new CgiHttpKernel(__DIR__.'/Fixtures', 'silex.php', $this->phpCgiBin);
-
-        $request = Request::create('/baz', 'POST');
-        $response = $this->kernel->handle($request);
-
-        $this->assertSame('qux', $response->getContent());
-    }
-
-    /** @test */
-    public function frontControllerShouldSupportPut()
-    {
-        $this->kernel = new CgiHttpKernel(__DIR__.'/Fixtures', 'silex.php', $this->phpCgiBin);
-
-        $request = Request::create('/put-target', 'PUT');
-        $response = $this->kernel->handle($request);
-
-        $this->assertSame('putted', $response->getContent());
-    }
-
-    /** @test */
-    public function frontControllerShouldSupportDelete()
-    {
-        $this->kernel = new CgiHttpKernel(__DIR__.'/Fixtures', 'silex.php', $this->phpCgiBin);
-
-        $request = Request::create('/delete-target', 'DELETE');
-        $response = $this->kernel->handle($request);
-
-        $this->assertSame('deleted', $response->getContent());
-    }
-
-    /** @test */
     public function itShouldForwardRequestParameters()
     {
         $request = Request::create('/post-params.php', 'POST', array('foo' => 'bar'));
@@ -201,17 +157,6 @@ class CgiHttpKernelTest extends \PHPUnit_Framework_TestCase
         $response = $this->kernel->handle($request);
 
         $this->assertSame('/script-name.php', $response->getContent());
-    }
-
-    /** @test */
-    public function scriptNameShouldBeFrontControllerWithCustomFrontController()
-    {
-        $this->kernel = new CgiHttpKernel(__DIR__.'/Fixtures', 'silex.php', $this->phpCgiBin);
-
-        $request = Request::create('/script-name');
-        $response = $this->kernel->handle($request);
-
-        $this->assertSame('/silex.php', $response->getContent());
     }
 
     /** @test */
